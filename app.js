@@ -181,12 +181,12 @@
       name.value = header.name;
       name.placeholder = "Header name";
       name.setAttribute("aria-label", "Header name");
-      name.addEventListener("input", () => { header.name = name.value; });
+      name.addEventListener("input", () => { header.name = name.value; saveWorkspace(); });
       const value = document.createElement("input");
       value.value = header.value;
       value.placeholder = "Header value";
       value.setAttribute("aria-label", "Header value");
-      value.addEventListener("input", () => { header.value = value.value; });
+      value.addEventListener("input", () => { header.value = value.value; saveWorkspace(); });
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "×";
