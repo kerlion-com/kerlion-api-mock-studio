@@ -111,6 +111,7 @@
   }
 
   function selectEndpoint(id) {
+    if (!syncResponseBody()) { notify("Fix the response JSON before switching endpoints."); return; }
     if (!endpoints.some((endpoint) => endpoint.id === id)) return;
     selectedId = id;
     render();
@@ -217,6 +218,7 @@
   }
 
   function addEndpoint() {
+    if (!syncResponseBody()) { notify("Fix the response JSON before adding an endpoint."); return; }
     const id = "endpoint-" + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(16).slice(2));
     const endpoint = { id, name: "New endpoint", method: "GET", path: "/api/new-endpoint", status: 200, body: { message: "Hello from KERLION API Mock Studio" }, headers: clone(DEFAULT_HEADERS) };
     endpoints.push(endpoint);
@@ -229,6 +231,7 @@
   function deleteEndpoint() {
     const endpoint = selectedEndpoint();
     if (!endpoint) return;
+    if (!syncResponseBody()) { notify("Fix the response JSON before deleting this endpoint."); return; }
     endpoints = endpoints.filter((item) => item.id !== selectedId);
     selectedId = endpoints[0]?.id || null;
     render();
@@ -242,6 +245,15 @@
       return;
     }
     syncSimpleFields();
+    const requestBodyText = elements.reqBody.value.trim();
+    if (requestBodyText) {
+      try { JSON.parse(requestBodyText); } catch (error) {
+        elements.feedback.firstElementChild.textContent = "Invalid request JSON";
+        elements.feedback.lastElementChild.textContent = error.message;
+        elements.result.hidden = true;
+        return;
+      }
+    }
     const started = performance.now();
     try {
       const method = elements.reqMethod.value;
@@ -303,6 +315,7 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
+        if (!syncResponseBody()) throw new Error("Fix the current response JSON before importing a workspace.");
         const project = JSON.parse(String(reader.result));
         if (!project || project.format !== "kerlion-api-mock-studio" || project.version !== 1 || !Array.isArray(project.endpoints)) throw new Error("This file is not a supported KERLION API Mock Studio project.");
         if (project.endpoints.length > 200) throw new Error("A workspace can contain up to 200 endpoints.");
