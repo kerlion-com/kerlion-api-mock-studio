@@ -4,7 +4,7 @@
 
 # KERLION API Mock Studio
 
-**Build and test REST API response examples in your browser - before the backend is ready.**
+**Build and test REST API response examples in your browser — before the backend is ready.**
 
 KERLION API Mock Studio is a free, open-source, browser-based workspace for defining REST-style endpoints, creating JSON response bodies, and testing how requests match those endpoint definitions.
 
@@ -99,7 +99,8 @@ The importer validates the file format, endpoint methods, paths, status codes, a
 ```text
 kerlion-api-mock-studio/
 ├── assets/
-│   └── favicon.svg
+│   ├── favicon.svg
+│   └── kerlion-api-mock-studio-banner.png
 ├── index.html
 ├── styles.css
 ├── app.js
