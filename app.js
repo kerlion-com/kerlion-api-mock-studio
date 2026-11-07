@@ -269,9 +269,15 @@
   }
 
   function addEndpoint() {
-    if (!syncResponseBody()) { notify("Fix the response JSON before adding an endpoint."); return; }
+    if (selectedEndpoint() && !syncResponseBody()) { notify("Fix the response JSON before adding an endpoint."); return; }
     const id = "endpoint-" + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(16).slice(2));
-    const endpoint = { id, name: "New endpoint", method: "GET", path: "/api/new-endpoint", status: 200, body: { message: "Hello from KERLION API Mock Studio" }, headers: clone(DEFAULT_HEADERS) };
+    let sequence = endpoints.length + 1;
+    let path = "/api/new-endpoint-" + sequence;
+    while (endpoints.some((item) => item.method === "GET" && item.path === path)) {
+      sequence += 1;
+      path = "/api/new-endpoint-" + sequence;
+    }
+    const endpoint = { id, name: "New endpoint " + sequence, method: "GET", path, status: 200, body: { message: "Hello from KERLION API Mock Studio" }, headers: clone(DEFAULT_HEADERS) };
     endpoints.push(endpoint);
     selectedId = id;
     saveWorkspace();
@@ -292,12 +298,17 @@
   }
 
   function runRequest() {
+    if (!selectedEndpoint()) {
+      elements.feedback.firstElementChild.textContent = "No endpoint selected";
+      elements.feedback.lastElementChild.textContent = "Create or import an endpoint before testing a request.";
+      elements.result.hidden = true;
+      return;
+    }
     if (!syncResponseBody()) {
       elements.feedback.firstElementChild.textContent = "Cannot run request";
       elements.feedback.lastElementChild.textContent = "Fix the response JSON first.";
       return;
     }
-    syncSimpleFields();
     const requestBodyText = elements.reqBody.value.trim();
     if (requestBodyText) {
       try { JSON.parse(requestBodyText); } catch (error) {
@@ -347,7 +358,7 @@
   }
 
   function exportProject() {
-    if (!syncResponseBody()) {
+    if (selectedEndpoint() && !syncResponseBody()) {
       notify("Fix invalid JSON before exporting.");
       return;
     }
@@ -368,7 +379,7 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        if (!syncResponseBody()) throw new Error("Fix the current response JSON before importing a workspace.");
+        if (selectedEndpoint() && !syncResponseBody()) throw new Error("Fix the current response JSON before importing a workspace.");
         const project = JSON.parse(String(reader.result));
         if (!project || project.format !== "kerlion-api-mock-studio" || project.version !== 1 || !Array.isArray(project.endpoints)) throw new Error("This file is not a supported KERLION API Mock Studio project.");
         if (project.endpoints.length > 200) throw new Error("A workspace can contain up to 200 endpoints.");
