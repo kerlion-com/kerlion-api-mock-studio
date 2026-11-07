@@ -109,7 +109,7 @@ The project includes lightweight browser-console tests for path normalization, r
 
 1. Open `index.html`.
 2. Open the browser developer console.
-3. Temporarily add `<script src="tests.js"></script>` after `<script src="app.js" defer></script>` in `index.html`, then reload the page.
+3. Add `<script src="tests.js"></script>` after the application script in `index.html` and reload the page. The test script is not included in normal runs.
 4. Confirm that all tests pass.
 
 The test file is kept separate from the normal application runtime.
