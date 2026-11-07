@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap');
-
 :root{color-scheme:dark;--bg:#07111d;--panel:#0d1b2a;--panel-2:#102235;--line:#1d3548;--muted:#8fa7b8;--text:#e8f1f6;--accent:#27e0aa;--blue:#60b9ff;--danger:#ff7c88;--radius:15px;font-family:'DM Sans',Arial,sans-serif}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(ellipse at 75% -15%,#0d3a3a 0,transparent 38%),var(--bg);color:var(--text);min-height:100vh}
