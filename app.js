@@ -30,7 +30,7 @@
           path: normalizePath(item.path),
           status: Number(item.status || 200),
           body: item.body,
-          headers: Array.isArray(item.headers) ? item.headers.map((header) => ({ name: String(header.name || ""), value: String(header.value || "") })) : []
+          headers: Array.isArray(item.headers) ? item.headers.map((header) => ({ name: String(header.name || ""), value: String(header.value || "") })).filter(isValidHeader) : []
         };
         if (ids.has(endpoint.id)) throw new Error("Duplicate endpoint IDs in saved workspace.");
         ids.add(endpoint.id);
@@ -50,12 +50,30 @@
   let toastTimer;
   let storageAvailable = true;
 
+  function isValidHeader(header) {
+    return Boolean(
+      header &&
+      typeof header.name === "string" &&
+      header.name.trim() &&
+      !/[\\r\\n:]/.test(header.name) &&
+      typeof header.value === "string" &&
+      !/[\\r\\n]/.test(header.value)
+    );
+  }
+
+  function workspaceSnapshot() {
+    return endpoints.map((endpoint) => ({
+      ...endpoint,
+      headers: endpoint.headers.filter(isValidHeader)
+    }));
+  }
+
   function saveWorkspace() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         format: "kerlion-api-mock-studio",
         version: 1,
-        endpoints
+        endpoints: workspaceSnapshot()
       }));
       storageAvailable = true;
       return true;
@@ -237,17 +255,44 @@
 
   function syncSimpleFields() {
     const endpoint = selectedEndpoint();
-    if (!endpoint) return;
-    endpoint.name = endpoint.name || endpoint.method + " " + endpoint.path;
-    endpoint.method = elements.method.value;
-    endpoint.path = elements.path.value;
-    endpoint.status = Number(elements.status.value);
+    if (!endpoint) return false;
+
+    const candidate = {
+      ...endpoint,
+      method: elements.method.value,
+      path: elements.path.value,
+      status: Number(elements.status.value)
+    };
+
+    try {
+      candidate.path = normalizePath(candidate.path);
+      validateEndpoint(candidate);
+      const duplicate = endpoints.find((item) =>
+        item.id !== endpoint.id &&
+        item.method === candidate.method &&
+        normalizePath(item.path) === candidate.path
+      );
+      if (duplicate) throw new Error("An endpoint with this method and path already exists.");
+    } catch (error) {
+      elements.path.setAttribute("aria-invalid", "true");
+      elements.path.setCustomValidity(error.message);
+      notify(error.message);
+      return false;
+    }
+
+    elements.path.setCustomValidity("");
+    elements.path.removeAttribute("aria-invalid");
+    endpoint.method = candidate.method;
+    endpoint.path = candidate.path;
+    endpoint.status = candidate.status;
     endpoint.name = endpoint.method + " " + endpoint.path;
+    elements.path.value = endpoint.path;
     elements.reqMethod.value = endpoint.method;
     elements.reqPath.value = endpoint.path;
     elements.reqBodyWrap.hidden = !["POST", "PUT", "PATCH"].includes(endpoint.method);
     renderList();
     saveWorkspace();
+    return true;
   }
 
   function syncResponseBody() {
@@ -362,7 +407,7 @@
       notify("Fix invalid JSON before exporting.");
       return;
     }
-    const project = { format: "kerlion-api-mock-studio", version: 1, exportedAt: new Date().toISOString(), endpoints };
+    const project = { format: "kerlion-api-mock-studio", version: 1, exportedAt: new Date().toISOString(), endpoints: workspaceSnapshot() };
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -371,7 +416,7 @@
     document.body.append(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     notify("Workspace exported.");
   }
 
@@ -434,7 +479,7 @@
     $("#add-header-button").addEventListener("click", () => {
       const endpoint = selectedEndpoint();
       if (!endpoint) return;
-      endpoint.headers.push({ name: "", value: "" });
+      endpoint.headers.push({ name: "X-Custom-Header", value: "" });
       saveWorkspace();
       renderHeaders(endpoint);
     });
