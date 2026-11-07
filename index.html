@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081522">
+  <meta name="description" content="Build and test local REST API mock responses in your browser. Free, open-source, and privacy-first.">
+  <title>KERLION API Mock Studio</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="KERLION API Mock Studio home">
+      <span class="brand-mark">K</span>
+      <span><strong>KERLION</strong><small>API MOCK STUDIO</small></span>
+    </a>
+    <nav class="top-actions" aria-label="Main actions">
+      <a class="guide-link" href="https://www.kerlionvip.com" target="_blank" rel="noopener noreferrer">KERLION Website ↗</a>
+      <button class="button button-quiet" id="load-project-button" type="button">Import</button>
+      <button class="button button-quiet" id="export-project-button" type="button">Export</button>
+      <button class="button button-primary" id="new-endpoint-button" type="button">＋ New endpoint</button>
+      <input id="import-project-input" type="file" accept=".json,application/json" hidden>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <div>
+        <p class="eyebrow">DESIGN · MOCK · TEST</p>
+        <h1>Build an API before the backend is ready.</h1>
+        <p class="intro-copy">Create REST endpoint examples, define JSON responses, and test request matching — right in your browser.</p>
+        <p class="privacy-note"><span class="status-dot"></span> Local workspace · No account · No data uploaded</p>
+      </div>
+      <div class="intro-side">
+        <span class="version-label">BROWSER-BASED MOCK ENGINE</span>
+        <div class="mini-code" aria-hidden="true"><span>GET</span> /api/users <b>200 OK</b><br><span>POST</span> /api/login <b>201 CREATED</b><br><span>GET</span> /api/products/:id <b>200 OK</b></div>
+      </div>
+    </section>
+
+    <div class="notice" role="note">
+      <strong>How this version works:</strong> requests are simulated inside this page. It does not start a network-accessible HTTP server or create public API URLs.
+    </div>
+
+    <section class="workspace" aria-label="API mock workspace">
+      <aside class="sidebar">
+        <div class="sidebar-heading">
+          <div><span class="eyebrow">WORKSPACE</span><h2>Endpoints <span id="endpoint-count" class="count-badge">0</span></h2></div>
+          <button class="icon-button" id="sidebar-add-button" type="button" aria-label="Add endpoint" title="Add endpoint">＋</button>
+        </div>
+        <label class="search-wrap"><span class="sr-only">Search endpoints</span><span aria-hidden="true">⌕</span><input id="endpoint-search" type="search" placeholder="Filter endpoints…"></label>
+        <div id="endpoint-list" class="endpoint-list"></div>
+        <div class="sidebar-footer">
+          <span class="status-dot"></span><span>Saved in this browser session</span>
+        </div>
+      </aside>
+
+      <section class="editor-panel">
+        <div id="empty-state" class="empty-state" hidden>
+          <div class="empty-icon">⌘</div>
+          <h2>Your workspace is ready</h2>
+          <p>Add an endpoint to define a request and its mock response.</p>
+          <button class="button button-primary" id="empty-add-button" type="button">＋ Create first endpoint</button>
+        </div>
+
+        <div id="endpoint-editor">
+          <div class="editor-header">
+            <div><span class="eyebrow">ENDPOINT CONFIGURATION</span><h2 id="editor-title">List users</h2></div>
+            <button class="button button-danger-quiet" id="delete-endpoint-button" type="button">Delete endpoint</button>
+          </div>
+
+          <div class="config-grid">
+            <label class="field field-method"><span>HTTP method</span>
+              <select id="method-input">
+                <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+              </select>
+            </label>
+            <label class="field field-path"><span>Endpoint path</span><input id="path-input" type="text" spellcheck="false" placeholder="/api/users"></label>
+            <label class="field field-status"><span>Response status</span>
+              <select id="status-input">
+                <option value="200">200 · OK</option><option value="201">201 · Created</option><option value="202">202 · Accepted</option><option value="204">204 · No Content</option><option value="400">400 · Bad Request</option><option value="401">401 · Unauthorized</option><option value="403">403 · Forbidden</option><option value="404">404 · Not Found</option><option value="409">409 · Conflict</option><option value="422">422 · Unprocessable Entity</option><option value="429">429 · Too Many Requests</option><option value="500">500 · Internal Server Error</option><option value="503">503 · Service Unavailable</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Endpoint details">
+            <button class="tab active" role="tab" aria-selected="true" aria-controls="response-tab" id="response-tab-button" data-tab="response-tab" type="button">Response body</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="headers-tab" id="headers-tab-button" data-tab="headers-tab" type="button">Headers <span id="header-count" class="tab-count">0</span></button>
+          </div>
+          <section id="response-tab" class="tab-panel" role="tabpanel" aria-labelledby="response-tab-button">
+            <div class="section-line"><div><h3>JSON response</h3><p>Define the data returned by this endpoint.</p></div><span id="json-validity" class="validation-state">Valid JSON</span></div>
+            <label class="sr-only" for="response-input">JSON response body</label>
+            <textarea id="response-input" class="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+            <p id="response-error" class="field-error" aria-live="polite"></p>
+          </section>
+          <section id="headers-tab" class="tab-panel" role="tabpanel" aria-labelledby="headers-tab-button" hidden>
+            <div class="section-line"><div><h3>Response headers</h3><p>Optional headers included in the simulated response.</p></div><button class="button button-quiet button-small" id="add-header-button" type="button">＋ Add header</button></div>
+            <div id="headers-editor" class="headers-editor"></div>
+          </section>
+
+          <div class="tester">
+            <div class="tester-heading"><div><span class="eyebrow">REQUEST PLAYGROUND</span><h3>Try this endpoint</h3></div><button class="button button-primary" id="send-request-button" type="button">▶ Send request</button></div>
+            <div class="request-line">
+              <select id="request-method" aria-label="Request method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+              <input id="request-path" aria-label="Request path" spellcheck="false">
+            </div>
+            <div id="request-body-wrap" class="request-body-wrap" hidden>
+              <label class="field"><span>Request JSON body (optional)</span><textarea id="request-body" class="request-body" spellcheck="false" placeholder='{"name":"Ada"}'></textarea></label>
+            </div>
+            <div id="request-feedback" class="request-feedback" aria-live="polite">
+              <span>Ready to test</span><span>Choose Send request</span>
+            </div>
+            <section id="response-result" class="response-result" hidden>
+              <div class="result-heading"><h4>Mock response</h4><span id="result-status" class="result-status"></span><span id="result-time" class="result-time"></span></div>
+              <pre><code id="result-output"></code></pre>
+              <div class="result-headers"><strong>Headers</strong><pre id="result-headers"></pre></div>
+            </section>
+          </div>
+          <p class="editor-hint">Changes are kept in memory while this page is open. Use Export to save a portable JSON workspace.</p>
+        </div>
+      </section>
+    </section>
+    <footer class="site-footer"><span>KERLION API Mock Studio · Open source · MIT License</span><a href="https://www.kerlionvip.com" target="_blank" rel="noopener noreferrer">www.kerlionvip.com</a></footer>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><div class="noscript">JavaScript is required to use KERLION API Mock Studio.</div></noscript>
+</body>
+</html>
