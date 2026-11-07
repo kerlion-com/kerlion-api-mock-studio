@@ -23,7 +23,11 @@
     ["accepts a valid endpoint", () => api.validateEndpoint(sample[0]) === true],
     ["rejects an invalid method", () => { try { api.validateEndpoint({ ...sample[0], method:"TRACE" }); return false; } catch { return true; } }],
     ["rejects an invalid status code", () => { try { api.validateEndpoint({ ...sample[0], status:99 }); return false; } catch { return true; } }],
-    ["rejects header line breaks", () => { try { api.validateEndpoint({ ...sample[0], headers:[{name:"X-Test",value:"ok\r\nInjected: yes"}] }); return false; } catch { return true; } }]
+    ["rejects header line breaks", () => { try { api.validateEndpoint({ ...sample[0], headers:[{name:"X-Test",value:"ok\r\nInjected: yes"}] }); return false; } catch { return true; } }],
+    ["accepts a valid response header", () => api.isValidHeader({ name:"X-Trace-Id", value:"trace-123" })],
+    ["rejects a whitespace-only header name", () => !api.isValidHeader({ name:"   ", value:"value" })],
+    ["rejects line breaks in a header name", () => !api.isValidHeader({ name:"X-Test\r\nInjected", value:"value" })],
+    ["rejects line breaks in a header value", () => !api.isValidHeader({ name:"X-Test", value:"value\r\nInjected: yes" })]
   ];
 
   const failures = [];
