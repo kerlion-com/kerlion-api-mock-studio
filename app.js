@@ -122,7 +122,7 @@
     if (!Number.isInteger(Number(endpoint.status)) || Number(endpoint.status) < 100 || Number(endpoint.status) > 599) throw new Error("Status must be between 100 and 599.");
     if (!Array.isArray(endpoint.headers)) throw new Error("Headers must be a list.");
     endpoint.headers.forEach((header) => {
-      if (!header.name || /[\r\n:]/.test(header.name)) throw new Error("Header names must be valid and cannot contain line breaks or colons.");
+      if (typeof header.name !== "string" || !header.name.trim() || /[\r\n:]/.test(header.name)) throw new Error("Header names must be valid, non-empty, and cannot contain line breaks or colons.");
       if (/[\r\n]/.test(header.value || "")) throw new Error("Header values cannot contain line breaks.");
     });
     if (typeof endpoint.body === "undefined") throw new Error("Response body is missing.");
