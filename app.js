@@ -55,9 +55,9 @@
       header &&
       typeof header.name === "string" &&
       header.name.trim() &&
-      !/[\\r\\n:]/.test(header.name) &&
+      !/[\r\n:]/.test(header.name) &&
       typeof header.value === "string" &&
-      !/[\\r\\n]/.test(header.value)
+      !/[\r\n]/.test(header.value)
     );
   }
 
@@ -266,7 +266,8 @@
 
     try {
       candidate.path = normalizePath(candidate.path);
-      validateEndpoint(candidate);
+      if (!METHODS.includes(candidate.method)) throw new Error("Unsupported HTTP method.");
+      if (!Number.isInteger(candidate.status) || candidate.status < 100 || candidate.status > 599) throw new Error("Status must be between 100 and 599.");
       const duplicate = endpoints.find((item) =>
         item.id !== endpoint.id &&
         item.method === candidate.method &&
