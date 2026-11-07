@@ -4,10 +4,6 @@
 
 KERLION API Mock Studio is a free, open-source, browser-based workspace for defining REST-style endpoints, creating JSON response bodies, and testing how requests match those endpoint definitions.
 
-<p align="center">
-  <img src="assets/social-preview.png" alt="KERLION API Mock Studio social preview" width="100%">
-</p>
-
 **Official website:** https://www.kerlionvip.com  
 **GitHub:** https://github.com/kerlion-com/kerlion-api-mock-studio
 
@@ -22,11 +18,11 @@ KERLION API Mock Studio is a free, open-source, browser-based workspace for defi
 - Automatically save and restore workspace changes in the same browser using local storage.
 - Import and export portable workspace files as JSON.
 - Responsive interface for desktop and mobile.
-- No account, build step, backend, or third-party JavaScript dependency.
+- No account, build step, backend, external font service, or third-party JavaScript dependency.
 
 ## Important scope note
 
-**The first release simulates request matching inside the browser interface. It does not start a real HTTP server, expose network endpoints, or provide shareable API URLs.** The request playground shows the response that a configured mock route would return. A network-accessible mock server may be considered as a separate future capability.
+**The first release simulates request matching inside the browser interface. It does not start a real HTTP server, expose network endpoints, or provide shareable API URLs.** The request playground shows the static response configured for a matching route. The optional request body is syntax-checked only; it does not modify or dynamically generate the response. A network-accessible mock server may be considered as a separate future capability.
 
 ## Run locally
 
@@ -39,7 +35,7 @@ No installation or build process is required.
 5. Use **Send request** to test route matching.
 6. Use **Export** to download a portable copy of your workspace as a JSON file. The workspace is also saved automatically in the current browser.
 
-You can also serve the folder with any static web server. All application files are static assets.
+You can also serve the folder with any static web server. All application files are static assets. The interface uses system font fallbacks and does not request fonts from an external provider.
 
 ## Route examples
 
@@ -85,7 +81,7 @@ The importer validates the file format, endpoint methods, paths, status codes, a
 
 ## Privacy
 
-- Endpoint definitions and response examples stay in your browser and are saved locally on that device using local storage.
+- Endpoint definitions and response examples stay in your browser and are saved locally on that device using local storage. Incomplete response-header rows are omitted from saved and exported workspaces until they contain a valid header name.
 - The application does not send workspace data to a KERLION server or any API.
 - Exported JSON files are saved only when you choose Export.
 - Do not put passwords, access tokens, or real personal data in sample responses.
