@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/kerlion-api-mock-studio-banner.png" alt="KERLION API Mock Studio" width="100%">
+</p>
+
 # KERLION API Mock Studio
 
 **Build and test REST API response examples in your browser — before the backend is ready.**
