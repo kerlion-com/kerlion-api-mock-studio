@@ -102,7 +102,7 @@ kerlion-api-mock-studio/
 
 ## Tests
 
-The project includes lightweight browser-console tests for path normalization, route matching, and endpoint validation.
+The project includes 17 lightweight browser-console tests for path normalization, route matching, endpoint validation, and response-header sanitization.
 
 1. Open `index.html`.
 2. Open the browser developer console.
