@@ -14,10 +14,57 @@
 
   const $ = (selector) => document.querySelector(selector);
   const clone = (value) => JSON.parse(JSON.stringify(value));
-  let endpoints = clone(seedEndpoints);
-  let selectedId = endpoints[0].id;
+  function loadStoredWorkspace() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) return clone(seedEndpoints);
+      const parsed = JSON.parse(stored);
+      if (!parsed || parsed.format !== "kerlion-api-mock-studio" || parsed.version !== 1 || !Array.isArray(parsed.endpoints)) return clone(seedEndpoints);
+      if (parsed.endpoints.length > 200) return clone(seedEndpoints);
+      const ids = new Set();
+      const restored = parsed.endpoints.map((item, index) => {
+        const endpoint = {
+          id: String(item.id || "restored-" + index),
+          name: String(item.name || ("Endpoint " + (index + 1))).slice(0, 100),
+          method: String(item.method || "GET").toUpperCase(),
+          path: normalizePath(item.path),
+          status: Number(item.status || 200),
+          body: item.body,
+          headers: Array.isArray(item.headers) ? item.headers.map((header) => ({ name: String(header.name || ""), value: String(header.value || "") })) : []
+        };
+        if (ids.has(endpoint.id)) throw new Error("Duplicate endpoint IDs in saved workspace.");
+        ids.add(endpoint.id);
+        validateEndpoint(endpoint);
+        return endpoint;
+      });
+      return restored.length ? restored : clone(seedEndpoints);
+    } catch (error) {
+      console.warn("Saved workspace could not be restored. Starting with examples.", error);
+      return clone(seedEndpoints);
+    }
+  }
+
+  let endpoints = loadStoredWorkspace();
+  let selectedId = endpoints[0]?.id || null;
   let activeTab = "response-tab";
   let toastTimer;
+  let storageAvailable = true;
+
+  function saveWorkspace() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        format: "kerlion-api-mock-studio",
+        version: 1,
+        endpoints
+      }));
+      storageAvailable = true;
+      return true;
+    } catch (error) {
+      storageAvailable = false;
+      console.warn("Workspace could not be saved in this browser.", error);
+      return false;
+    }
+  }
 
   const elements = {
     list: $("#endpoint-list"), count: $("#endpoint-count"), search: $("#endpoint-search"),
@@ -146,6 +193,7 @@
       remove.setAttribute("aria-label", "Remove header");
       remove.addEventListener("click", () => {
         endpoint.headers.splice(index, 1);
+        saveWorkspace();
         renderHeaders(endpoint);
       });
       row.append(name, value, remove);
@@ -194,10 +242,12 @@
     endpoint.method = elements.method.value;
     endpoint.path = elements.path.value;
     endpoint.status = Number(elements.status.value);
+    endpoint.name = endpoint.method + " " + endpoint.path;
     elements.reqMethod.value = endpoint.method;
     elements.reqPath.value = endpoint.path;
     elements.reqBodyWrap.hidden = !["POST", "PUT", "PATCH"].includes(endpoint.method);
     renderList();
+    saveWorkspace();
   }
 
   function syncResponseBody() {
@@ -205,6 +255,7 @@
     if (!endpoint) return false;
     try {
       endpoint.body = JSON.parse(elements.response.value);
+      saveWorkspace();
       elements.jsonState.textContent = "Valid JSON";
       elements.jsonState.classList.remove("invalid");
       elements.responseError.textContent = "";
@@ -223,6 +274,7 @@
     const endpoint = { id, name: "New endpoint", method: "GET", path: "/api/new-endpoint", status: 200, body: { message: "Hello from KERLION API Mock Studio" }, headers: clone(DEFAULT_HEADERS) };
     endpoints.push(endpoint);
     selectedId = id;
+    saveWorkspace();
     render();
     elements.title.focus?.();
     notify("Endpoint added.");
@@ -234,6 +286,7 @@
     if (!syncResponseBody()) { notify("Fix the response JSON before deleting this endpoint."); return; }
     endpoints = endpoints.filter((item) => item.id !== selectedId);
     selectedId = endpoints[0]?.id || null;
+    saveWorkspace();
     render();
     notify("Endpoint deleted.");
   }
@@ -337,6 +390,7 @@
         });
         endpoints = imported;
         selectedId = endpoints[0]?.id || null;
+        saveWorkspace();
         render();
         notify("Workspace imported.");
       } catch (error) {
@@ -370,6 +424,7 @@
       const endpoint = selectedEndpoint();
       if (!endpoint) return;
       endpoint.headers.push({ name: "", value: "" });
+      saveWorkspace();
       renderHeaders(endpoint);
     });
     document.querySelectorAll(".tab").forEach((button) => button.addEventListener("click", () => setTab(button.dataset.tab)));
@@ -386,4 +441,5 @@
 
   bindEvents();
   render();
+  if (!storageAvailable) notify("Browser storage is unavailable. Export your workspace to keep a copy.");
 })();
