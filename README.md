@@ -19,6 +19,7 @@ KERLION API Mock Studio is a free, open-source, browser-based workspace for defi
 - Set common HTTP response status codes.
 - Define JSON response bodies and optional response headers.
 - Test request matching in the built-in local playground.
+- Automatically save and restore workspace changes in the same browser using local storage.
 - Import and export portable workspace files as JSON.
 - Responsive interface for desktop and mobile.
 - No account, build step, backend, or third-party JavaScript dependency.
@@ -36,7 +37,7 @@ No installation or build process is required.
 3. Select an example endpoint or create a new one.
 4. Edit its method, path, status, response JSON, and headers.
 5. Use **Send request** to test route matching.
-6. Use **Export** to download your workspace as a JSON file.
+6. Use **Export** to download a portable copy of your workspace as a JSON file. The workspace is also saved automatically in the current browser.
 
 You can also serve the folder with any static web server. All application files are static assets.
 
@@ -84,8 +85,8 @@ The importer validates the file format, endpoint methods, paths, status codes, a
 
 ## Privacy
 
-- Endpoint definitions and response examples stay in the current browser page.
-- The application does not upload workspace data to a KERLION server.
+- Endpoint definitions and response examples stay in your browser and are saved locally on that device using local storage.
+- The application does not send workspace data to a KERLION server or any API.
 - Exported JSON files are saved only when you choose Export.
 - Do not put passwords, access tokens, or real personal data in sample responses.
 
