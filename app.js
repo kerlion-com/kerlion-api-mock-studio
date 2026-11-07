@@ -493,6 +493,7 @@
     pathMatches,
     findMatchingEndpoint,
     validateEndpoint,
+    isValidHeader,
     getEndpoints: () => clone(endpoints)
   };
 
