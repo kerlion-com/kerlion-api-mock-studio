@@ -15,6 +15,10 @@ KERLION API Mock Studio is a free, open-source, browser-based workspace for defi
 
 Download the latest published release from the [GitHub Releases page](https://github.com/kerlion-com/kerlion-api-mock-studio/releases). For version **v1.0.1**, use the [direct ZIP download](https://github.com/kerlion-com/kerlion-api-mock-studio/releases/download/v1.0.1/kerlion-api-mock-studio-1.0.1.zip).
 
+## Arabic Developer Guide
+
+For an in-depth explanation of the project, its code structure, Mock API concepts, and practical usage, read the [Arabic Developer Guide](https://www.kerlionvip.com/2026/11/kerlion-api-mock-studio.html).
+
 ## Features
 
 - Create, edit, search, and delete mock endpoint definitions.
